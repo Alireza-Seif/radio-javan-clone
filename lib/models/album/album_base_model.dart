@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:radio_javan/models/album_model.dart';
+import 'package:radio_javan/models/album/album_model.dart';
 part 'album_base_model.g.dart';
 
 

@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:radio_javan/models/album_base_model.dart';
-import 'package:radio_javan/models/play_list_base_model.dart';
+import 'package:radio_javan/models/album/album_base_model.dart';
+import 'package:radio_javan/models/artist/artist_base_model.dart';
+import 'package:radio_javan/models/play%20list/play_list_base_model.dart';
 import 'package:retrofit/retrofit.dart';
 
-import '../models/latest_music_model.dart';
-import '../models/music_model.dart';
+import '../models/latest music/latest_music_model.dart';
 
 part 'rest_client.g.dart';
 
@@ -20,4 +20,7 @@ abstract class RestClient {
 
   @GET('api.php?playlist')
   Future<PlayListBaseModel> getPlayLists();
+
+  @GET('api.php?recent_artist_list')
+  Future<ArtistBaseModel> getRecentArtists();
 }

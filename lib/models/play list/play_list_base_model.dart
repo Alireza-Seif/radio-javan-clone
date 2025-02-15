@@ -1,6 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:radio_javan/models/play%20list/play_list_model.dart';
 
-import 'play_list_model.dart';
 
 part 'play_list_base_model.g.dart';
 
