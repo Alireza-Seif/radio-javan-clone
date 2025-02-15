@@ -32,7 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: bodyScreens.elementAt(currentItem),
       extendBody: true,
       bottomNavigationBar: SizedBox(
-        height: 104,
+        height: 138,
         child: FloatingNavbar(
           selectedItemColor: Colors.blue,
           items: [
