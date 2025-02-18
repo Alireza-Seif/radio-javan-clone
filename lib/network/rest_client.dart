@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:radio_javan/models/album/album_base_model.dart';
 import 'package:radio_javan/models/artist/artist_base_model.dart';
+import 'package:radio_javan/models/category/category_base_model.dart';
 import 'package:radio_javan/models/play%20list/play_list_base_model.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -23,4 +24,10 @@ abstract class RestClient {
 
   @GET('api.php?recent_artist_list')
   Future<ArtistBaseModel> getRecentArtists();
+
+  @GET('api.php?cat_list')
+  Future<CategoryBaseModel> getCategories();
+
+  @GET('api.php')
+  Future<LatestMusicModel> getMusicsByCategory(@Query('cat_id') String id);
 }

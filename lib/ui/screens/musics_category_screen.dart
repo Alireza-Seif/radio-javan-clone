@@ -1,60 +1,57 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:radio_javan/models/category/category_base_model.dart';
+import 'package:radio_javan/models/category/category_model.dart';
+import 'package:radio_javan/models/latest%20music/latest_music_model.dart';
 import 'package:radio_javan/network/rest_client.dart';
-import 'package:radio_javan/ui/screens/musics_category_screen.dart';
 
-class CategoryScreen extends StatefulWidget {
-  const CategoryScreen({super.key});
+class MusicsCategoryScreen extends StatefulWidget {
+  final CategoryModel category;
+
+  const MusicsCategoryScreen({super.key, required this.category});
 
   @override
-  State<CategoryScreen> createState() => _CategoryScreenState();
+  State<MusicsCategoryScreen> createState() => _MusicsCategoryScreenState();
 }
 
-class _CategoryScreenState extends State<CategoryScreen> {
+class _MusicsCategoryScreenState extends State<MusicsCategoryScreen> {
   final dio = Dio();
   late RestClient restClient;
-
-  late Future<CategoryBaseModel> getCategories;
+  late Future<LatestMusicModel> getMusics;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     restClient = RestClient(dio);
-    getCategories = restClient.getCategories();
+    getMusics = restClient.getMusicsByCategory(widget.category.cid!);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: FutureBuilder<CategoryBaseModel>(
-        future: getCategories,
-        builder: (context, snapshot) {
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: Text('${widget.category.category_name}'),
+      ),
+      body: Container(child:
+        FutureBuilder<LatestMusicModel>(future: getMusics, builder: (context, snapshot) {
           if (snapshot.hasData) {
             return GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2),
-              itemCount: snapshot.data!.categories!.length,
+              itemCount: snapshot.data!.music!.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MusicsCategoryScreen(
-                          category: snapshot.data!.categories![index],
-                        ),
-                      ),
-                    );
+
                   },
                   child: CachedNetworkImage(
                     height: 164,
                     width: 164,
                     imageUrl:
-                        '${snapshot.data!.categories![index].category_image}',
+                    '${snapshot.data!.music![index].category_image}',
                     imageBuilder: (context, imageProvider) => Container(
                       margin: const EdgeInsets.all(8),
                       height: 164,
@@ -83,7 +80,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               ),
                               child: Center(
                                 child: Text(
-                                  '${snapshot.data!.categories![index].category_name}',
+                                  '${snapshot.data!.music![index].category_name}',
                                   style: const TextStyle(
                                     color: Colors.white,
                                   ),
@@ -111,8 +108,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
           } else {
             return const Center(child: CircularProgressIndicator());
           }
-        },
-      ),
+        },),),
     );
   }
 }
