@@ -43,6 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           currentIndex: currentItem,
           onTap: (value) {
             setState(() {
+              // throw Exception();
               currentItem = value;
             });
           },
