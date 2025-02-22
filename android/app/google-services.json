@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "822119080233",
+    "project_id": "radio-javan-4a4e9",
+    "storage_bucket": "radio-javan-4a4e9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:822119080233:android:62e11eb8805ae2d3a11738",
+        "android_client_info": {
+          "package_name": "com.seif.radio_javan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvG-rgqGeP9s2-dM6cPrdDFxWlr6MSlGM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
