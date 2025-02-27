@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:miniplayer/miniplayer.dart';
 import 'package:radio_javan/models/album/album_base_model.dart';
 import 'package:radio_javan/models/artist/artist_base_model.dart';
 import 'package:radio_javan/models/latest%20music/latest_music_model.dart';
+import 'package:radio_javan/models/music/music_model.dart';
 import 'package:radio_javan/network/rest_client.dart';
 
 import '../../models/play list/play_list_base_model.dart';
@@ -24,6 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<AlbumBaseModel> getAlbums;
   late Future<PlayListBaseModel> getPlayList;
   late Future<ArtistBaseModel> getArtistList;
+
+  bool isPlayed = false;
+
+  late MusicModel currentMusic;
 
   @override
   void initState() {
@@ -115,60 +122,70 @@ class _HomeScreenState extends State<HomeScreen> {
                                     scrollDirection: Axis.horizontal,
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
-                                      return CachedNetworkImage(
-                                        height: 164,
-                                        width: 164,
-                                        imageUrl:
-                                            '${snapshot.data!.music![index].mp3_thumbnail_b}',
-                                        imageBuilder:
-                                            (context, imageProvider) =>
-                                                Container(
-                                          margin: const EdgeInsets.all(8),
+                                      return InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            isPlayed = true;
+                                            currentMusic =
+                                                snapshot.data!.music![index];
+                                          });
+                                        },
+                                        child: CachedNetworkImage(
                                           height: 164,
                                           width: 164,
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.cover,
+                                          imageUrl:
+                                              '${snapshot.data!.music![index].mp3_thumbnail_b}',
+                                          imageBuilder:
+                                              (context, imageProvider) =>
+                                                  Container(
+                                            margin: const EdgeInsets.all(8),
+                                            height: 164,
+                                            width: 164,
+                                            decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                image: imageProvider,
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
-                                          ),
-                                          child: Stack(
-                                            children: [
-                                              Positioned(
-                                                bottom: 5,
-                                                left: 0,
-                                                right: 0,
-                                                child: Container(
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    gradient: LinearGradient(
-                                                      colors: [
-                                                        Colors.blueAccent,
-                                                        Colors.purpleAccent,
-                                                        Colors.redAccent
-                                                      ],
+                                            child: Stack(
+                                              children: [
+                                                Positioned(
+                                                  bottom: 5,
+                                                  left: 0,
+                                                  right: 0,
+                                                  child: Container(
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        colors: [
+                                                          Colors.blueAccent,
+                                                          Colors.purpleAccent,
+                                                          Colors.redAccent
+                                                        ],
+                                                      ),
                                                     ),
-                                                  ),
-                                                  child: Center(
-                                                    child: Text(
-                                                      '${snapshot.data!.music![index].mp3_artist}',
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
+                                                    child: Center(
+                                                      child: Text(
+                                                        '${snapshot.data!.music![index].mp3_artist}',
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                        ),
                                                       ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        placeholder: (context, url) =>
-                                            Container(
-                                          height: 20,
-                                          width: 20,
-                                          margin: const EdgeInsets.all(10),
-                                          child: const Center(
-                                            child: CircularProgressIndicator(),
+                                          placeholder: (context, url) =>
+                                              Container(
+                                            height: 20,
+                                            width: 20,
+                                            margin: const EdgeInsets.all(10),
+                                            child: const Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
                                           ),
                                         ),
                                       );
@@ -359,7 +376,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Center(child: Text(snapshot.error.toString()));
                         } else {
                           return const Center(
-                              child: CircularProgressIndicator());
+                            child: CircularProgressIndicator(),
+                          );
                         }
                       },
                     )
@@ -368,16 +386,180 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          Container(
-            margin: const EdgeInsets.only(bottom: 110),
-            child: Miniplayer(
-              minHeight: 70,
-              maxHeight: MediaQuery.of(context).size.height,
-              builder: (height, percentage) {
-                return Text('$height , $percentage');
-              },
-            ),
-          )
+          if (isPlayed)
+            Container(
+              margin: const EdgeInsets.only(bottom: 110),
+              child: Miniplayer(
+                minHeight: 70,
+                maxHeight: MediaQuery.of(context).size.height,
+                builder: (height, percentage) {
+                  if (height == 70) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.9),
+                      ),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CachedNetworkImage(
+                              imageUrl: '${currentMusic.mp3_thumbnail_s}',
+                              height: 48,
+                              width: 48,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              '${currentMusic.mp3_title}',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            const SizedBox(width: 5),
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(
+                                    Icons.skip_previous,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(
+                                    Icons.play_arrow,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: const Icon(
+                                    Icons.skip_next,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.9),
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            right: 0,
+                            left: 0,
+                            top: 0,
+                            bottom: 0,
+                            child: ImageFiltered(
+                              imageFilter:
+                                  ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                              child: CachedNetworkImage(
+                                width: 280.0,
+                                height: 190.0,
+                                imageUrl: '${currentMusic.mp3_thumbnail_s}',
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: imageProvider,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: MediaQuery.of(context).size.width * 0.2,
+                            right: MediaQuery.of(context).size.width * 0.2,
+                            top: MediaQuery.of(context).size.height * 0.2,
+                            bottom: MediaQuery.of(context).size.height * 0.2,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width / 1.5,
+                              height: MediaQuery.of(context).size.height / 2.5,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.9),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    CachedNetworkImage(
+                                      width: 144.0,
+                                      height: 144.0,
+                                      imageUrl: '${currentMusic.mp3_thumbnail_b}',
+                                      imageBuilder: (context, imageProvider) =>
+                                          Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(10)),
+                                          image: DecorationImage(
+                                            image: imageProvider,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      '${currentMusic.mp3_title}',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'BYekanBold',
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                            Icons.skip_previous,
+                                            color: Colors.black,
+                                            size: 38,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                            Icons.play_arrow,
+                                            color: Colors.black,
+                                            size: 38,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                            Icons.skip_next,
+                                            color: Colors.black,
+                                            size: 38,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+              ),
+            )
         ],
       ),
     );
