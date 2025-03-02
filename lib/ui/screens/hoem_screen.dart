@@ -96,7 +96,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           );
                         } else if (snapshot.hasError) {
-                          return Center(child: Text(snapshot.error.toString()));
+                          return Center(
+                              child: Text(
+                            snapshot.error.toString(),
+                            style: TextStyle(color: Colors.white),
+                          ));
                         } else {
                           return const Center(
                               child: CircularProgressIndicator());
@@ -205,7 +209,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           );
                         } else if (snapshot.hasError) {
-                          return Center(child: Text(snapshot.error.toString()));
+                          return Center(
+                              child: Text(
+                            snapshot.error.toString(),
+                            style: TextStyle(color: Colors.white),
+                          ));
                         } else {
                           return const Center(
                               child: CircularProgressIndicator());
@@ -300,7 +308,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           );
                         } else if (snapshot.hasError) {
-                          return Center(child: Text(snapshot.error.toString()));
+                          return Center(
+                              child: Text(
+                            snapshot.error.toString(),
+                            style: TextStyle(color: Colors.white),
+                          ));
                         } else {
                           return const Center(
                               child: CircularProgressIndicator());
@@ -382,7 +394,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           );
                         } else if (snapshot.hasError) {
-                          return Center(child: Text(snapshot.error.toString()));
+                          return Center(
+                              child: Text(
+                            snapshot.error.toString(),
+                            style: TextStyle(color: Colors.white),
+                          ));
                         } else {
                           return const Center(
                             child: CircularProgressIndicator(),
@@ -424,6 +440,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               '${currentMusic.mp3_title}',
                               style: const TextStyle(color: Colors.white),
                             ),
+                            const SizedBox(width: 5),Text(
+                              '${currentMusic.mp3_artist}',
+                              style: const TextStyle(color: Colors.white),
+                            ),
                             const SizedBox(width: 5),
                             Row(
                               children: [
@@ -456,10 +476,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                 ),
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    if (player.hasNext) ;
+                                    await player.nextIndex;
+                                  },
                                   icon: const Icon(
                                     Icons.skip_next,
                                     color: Colors.white,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () async {
+                                    await player.shuffle();
+                                  },
+                                  icon: const Icon(
+                                    Icons.shuffle,
+                                    color: Colors.white,
+                                    size: 38,
                                   ),
                                 ),
                               ],
@@ -543,6 +576,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold,
                                         fontFamily: 'BYekanBold',
+                                        fontSize: 28,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${currentMusic.mp3_artist}',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'BYekanBold',
                                         fontSize: 18,
                                       ),
                                     ),
@@ -583,9 +625,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 ),
                                         ),
                                         IconButton(
-                                          onPressed: () {},
+                                          onPressed: () async {
+                                            if (player.hasNext) ;
+                                            await player.nextIndex;
+                                          },
                                           icon: const Icon(
                                             Icons.skip_next,
+                                            color: Colors.black,
+                                            size: 38,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () async {
+                                            await player.shuffle();
+                                          },
+                                          icon: const Icon(
+                                            Icons.shuffle,
                                             color: Colors.black,
                                             size: 38,
                                           ),
