@@ -3,13 +3,17 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:miniplayer/miniplayer.dart';
 import 'package:radio_javan/models/album/album_base_model.dart';
 import 'package:radio_javan/models/artist/artist_base_model.dart';
 import 'package:radio_javan/models/latest%20music/latest_music_model.dart';
 import 'package:radio_javan/models/music/music_model.dart';
 import 'package:radio_javan/network/rest_client.dart';
+import 'package:radio_javan/widgets/messages/show_messges.dart';
+import 'package:radio_javan/widgets/rows/albums_row.dart';
+import 'package:radio_javan/widgets/rows/artists_row.dart';
+import 'package:radio_javan/widgets/rows/musics_row.dart';
+import 'package:radio_javan/widgets/rows/slider_row.dart';
 
 import '../../models/play list/play_list_base_model.dart';
 import 'package:just_audio/just_audio.dart';
@@ -66,44 +70,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       future: getPlayList,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
-                          List<Widget> imagesList = [];
-                          for (int i = 0;
-                              i < snapshot.data!.playlists!.length;
-                              i++) {
-                            imagesList.add(
-                              CachedNetworkImage(
-                                imageUrl:
-                                    '${snapshot.data!.playlists![i].playlist_image}',
-                                width: double.infinity,
-                                height: 200,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => const Center(
-                                    child: CircularProgressIndicator()),
-                              ),
-                            );
-                          }
-                          return SizedBox(
-                            height: 200,
-                            child: ImageSlideshow(
-                              width: double.infinity,
-                              height: 200,
-                              initialPage: 0,
-                              indicatorColor: Colors.blueAccent,
-                              indicatorBackgroundColor: Colors.grey,
-                              autoPlayInterval: 3000,
-                              isLoop: true,
-                              children: imagesList,
-                            ),
+                          return SliderRow(
+                            playList: snapshot.data!.playlists!,
                           );
                         } else if (snapshot.hasError) {
                           return Center(
-                              child: Text(
-                            snapshot.error.toString(),
-                            style: TextStyle(color: Colors.white),
-                          ));
+                            child: showError(
+                              text: snapshot.error.toString(),
+                            ),
+                          );
                         } else {
-                          return const Center(
-                              child: CircularProgressIndicator());
+                          return showProgressBar(context);
                         }
                       },
                     ),
@@ -134,8 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     scrollDirection: Axis.horizontal,
                                     shrinkWrap: true,
                                     itemBuilder: (context, index) {
-                                      return InkWell(
-                                        onTap: () {
+                                      return MusicsRow(
+                                        callback: () {
                                           setState(() {
                                             isPlayed = true;
                                             currentStatePlay = true;
@@ -143,64 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 snapshot.data!.music![index];
                                           });
                                         },
-                                        child: CachedNetworkImage(
-                                          height: 164,
-                                          width: 164,
-                                          imageUrl:
-                                              '${snapshot.data!.music![index].mp3_thumbnail_b}',
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  Container(
-                                            margin: const EdgeInsets.all(8),
-                                            height: 164,
-                                            width: 164,
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            child: Stack(
-                                              children: [
-                                                Positioned(
-                                                  bottom: 5,
-                                                  left: 0,
-                                                  right: 0,
-                                                  child: Container(
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      gradient: LinearGradient(
-                                                        colors: [
-                                                          Colors.blueAccent,
-                                                          Colors.purpleAccent,
-                                                          Colors.redAccent
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        '${snapshot.data!.music![index].mp3_artist}',
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          placeholder: (context, url) =>
-                                              Container(
-                                            height: 20,
-                                            width: 20,
-                                            margin: const EdgeInsets.all(10),
-                                            child: const Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            ),
-                                          ),
-                                        ),
+                                        music: snapshot.data!.music![index],
                                       );
                                     },
                                   ),
@@ -210,13 +130,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         } else if (snapshot.hasError) {
                           return Center(
-                              child: Text(
-                            snapshot.error.toString(),
-                            style: TextStyle(color: Colors.white),
-                          ));
+                            child: showError(
+                              text: snapshot.error.toString(),
+                            ),
+                          );
                         } else {
-                          return const Center(
-                              child: CircularProgressIndicator());
+                          return showProgressBar(context);
                         }
                       },
                     ),
@@ -248,59 +167,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     shrinkWrap: true,
                                     itemCount: snapshot.data!.albums!.length,
                                     itemBuilder: (context, index) {
-                                      return Container(
-                                        margin: const EdgeInsets.only(right: 5),
-                                        child: CachedNetworkImage(
-                                          width: 180,
-                                          height: 190,
-                                          imageUrl:
-                                              '${snapshot.data!.albums![index].album_image}',
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  Container(
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            child: Stack(
-                                              children: [
-                                                Positioned(
-                                                    bottom: 5,
-                                                    right: 0,
-                                                    left: 0,
-                                                    child: Container(
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                        gradient:
-                                                            LinearGradient(
-                                                          colors: [
-                                                            Colors.green,
-                                                            Colors
-                                                                .deepPurpleAccent,
-                                                            Colors.orange,
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      child: Center(
-                                                        child: Text(
-                                                          '${snapshot.data!.albums![index].album_name}',
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 18,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ))
-                                              ],
-                                            ),
-                                          ),
-                                          placeholder: (context, url) =>
-                                              const CircularProgressIndicator(),
-                                        ),
-                                      );
+                                      return AlbumsRow(
+                                          albums:
+                                              snapshot.data!.albums![index]);
                                     },
                                   ),
                                 ),
@@ -309,13 +178,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         } else if (snapshot.hasError) {
                           return Center(
-                              child: Text(
-                            snapshot.error.toString(),
-                            style: TextStyle(color: Colors.white),
+                              child: showError(
+                            text: snapshot.error.toString(),
                           ));
                         } else {
-                          return const Center(
-                              child: CircularProgressIndicator());
+                          return showProgressBar(context);
                         }
                       },
                     ),
@@ -343,50 +210,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   scrollDirection: Axis.horizontal,
                                   itemCount: snapshot.data!.artists.length,
                                   itemBuilder: (context, index) {
-                                    return Container(
-                                      margin: const EdgeInsets.only(left: 10),
-                                      child: Column(
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 60,
-                                            child: ClipOval(
-                                              child: CachedNetworkImage(
-                                                imageUrl:
-                                                    '${snapshot.data!.artists[index].artist_image}',
-                                                imageBuilder:
-                                                    (context, imageProvider) =>
-                                                        Container(
-                                                  decoration: BoxDecoration(
-                                                    image: DecorationImage(
-                                                      image: imageProvider,
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
-                                                ),
-                                                placeholder: (context, url) =>
-                                                    Container(
-                                                  height: 20,
-                                                  width: 20,
-                                                  margin:
-                                                      const EdgeInsets.all(10),
-                                                  child: const Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Text(
-                                            '${snapshot.data!.artists[index].artist_name}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                    return ArtistsRow(
+                                      artists: snapshot.data!.artists[index],
                                     );
                                   },
                                 ),
@@ -395,14 +220,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         } else if (snapshot.hasError) {
                           return Center(
-                              child: Text(
-                            snapshot.error.toString(),
-                            style: TextStyle(color: Colors.white),
+                              child: showError(
+                            text: snapshot.error.toString(),
                           ));
                         } else {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
+                          return showProgressBar(context);
                         }
                       },
                     )
@@ -440,7 +262,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               '${currentMusic.mp3_title}',
                               style: const TextStyle(color: Colors.white),
                             ),
-                            const SizedBox(width: 5),Text(
+                            const SizedBox(width: 5),
+                            Text(
                               '${currentMusic.mp3_artist}',
                               style: const TextStyle(color: Colors.white),
                             ),
