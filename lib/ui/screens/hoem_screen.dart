@@ -12,6 +12,7 @@ import 'package:radio_javan/models/music/music_model.dart';
 import 'package:radio_javan/network/rest_client.dart';
 
 import '../../models/play list/play_list_base_model.dart';
+import 'package:just_audio/just_audio.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,6 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late MusicModel currentMusic;
 
+  bool currentStatePlay = false;
+  final player = AudioPlayer();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -40,6 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
     getAlbums = restClient.getAlbums();
     getPlayList = restClient.getPlayLists();
     getArtistList = restClient.getRecentArtists();
+  }
+
+  loadMusic() async {
+    await player.setUrl('${currentMusic.mp3_url}');
   }
 
   @override
@@ -126,6 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         onTap: () {
                                           setState(() {
                                             isPlayed = true;
+                                            currentStatePlay = true;
                                             currentMusic =
                                                 snapshot.data!.music![index];
                                           });
@@ -393,6 +402,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 minHeight: 70,
                 maxHeight: MediaQuery.of(context).size.height,
                 builder: (height, percentage) {
+                  loadMusic();
+
                   if (height == 70) {
                     return Container(
                       decoration: BoxDecoration(
@@ -424,11 +435,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.play_arrow,
-                                    color: Colors.white,
-                                  ),
+                                  onPressed: () async {
+                                    setState(() {
+                                      currentStatePlay = !currentStatePlay;
+                                    });
+                                    if (currentStatePlay == true) {
+                                      await player.play();
+                                    } else {
+                                      await player.pause();
+                                    }
+                                  },
+                                  icon: currentStatePlay == true
+                                      ? const Icon(
+                                          Icons.pause,
+                                          color: Colors.white,
+                                        )
+                                      : const Icon(
+                                          Icons.play_arrow,
+                                          color: Colors.white,
+                                        ),
                                 ),
                                 IconButton(
                                   onPressed: () {},
@@ -486,7 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.9),
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
+                                    const BorderRadius.all(Radius.circular(10)),
                               ),
                               child: Center(
                                 child: Column(
@@ -496,12 +521,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                     CachedNetworkImage(
                                       width: 144.0,
                                       height: 144.0,
-                                      imageUrl: '${currentMusic.mp3_thumbnail_b}',
+                                      imageUrl:
+                                          '${currentMusic.mp3_thumbnail_b}',
                                       imageBuilder: (context, imageProvider) =>
                                           Container(
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10)),
+                                          borderRadius: const BorderRadius.all(
+                                            Radius.circular(10),
+                                          ),
                                           image: DecorationImage(
                                             image: imageProvider,
                                             fit: BoxFit.cover,
@@ -509,7 +536,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: 10),
+                                    const SizedBox(height: 10),
                                     Text(
                                       '${currentMusic.mp3_title}',
                                       style: const TextStyle(
@@ -520,7 +547,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         IconButton(
                                           onPressed: () {},
@@ -531,12 +559,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ),
                                         IconButton(
-                                          onPressed: () {},
-                                          icon: const Icon(
-                                            Icons.play_arrow,
-                                            color: Colors.black,
-                                            size: 38,
-                                          ),
+                                          onPressed: () async {
+                                            setState(() {
+                                              currentStatePlay =
+                                                  !currentStatePlay;
+                                            });
+                                            if (currentStatePlay == true) {
+                                              await player.play();
+                                            } else {
+                                              await player.pause();
+                                            }
+                                          },
+                                          icon: currentStatePlay == true
+                                              ? const Icon(
+                                                  Icons.pause,
+                                                  color: Colors.black,
+                                                  size: 38,
+                                                )
+                                              : const Icon(
+                                                  Icons.play_arrow,
+                                                  color: Colors.black,
+                                                  size: 38,
+                                                ),
                                         ),
                                         IconButton(
                                           onPressed: () {},
